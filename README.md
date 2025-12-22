@@ -3,7 +3,7 @@
 ![PDFTwice Screenshot](app/public/screenshot/Main%20view.png)
 
 **PDFTwice** is a minimalist web tool for side-by-side PDF review. It is designed for QC and comparison of different versions of PDFs, like v1 vs v2, or translations.
-Unlike diff viewers, it is not focused on finding and highlighting differences. It provides an unencumbered view of both PDFs.
+Unlike diff viewers, it is not focused on finding and highlighting differences. It provides an unencumbered view of both PDFs. You can try it [here](https://pluskitty.github.io/PDFTwice)!
 
 ## 🚀 Features
 
@@ -13,7 +13,7 @@ Unlike diff viewers, it is not focused on finding and highlighting differences. 
 *   **Session Recovery**: Comments and session state are automatically saved to local storage, and restored if you close the tab without saving.
 *   **Privacy**: **100% Client-Side**. Your PDFs are processed entirely in your browser. No files are ever sent to a server.
 *   **Secure Local Bridge**: When self-hosted, securely load local files via URL parameters (e.g., `?left=ver1.pdf&right=ver2.pdf`) with built-in path traversal protection.
-*   **URL-based loading**: Load remote PDFs directly via URL (e.g., `?left=https://example.com/doc.pdf`). *Note: Requires CORS support on the remote server.*
+*   **URL-based loading**: Load remote PDFs directly via URL (e.g., `?left=https://example.com/doc.pdf`). Demo: [here](https://pluskitty.github.io/PDFTwice/?left=https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf&right=https://pdfobject.com/pdf/sample.pdf) *Note: Requires CORS support on the remote server.*
 *   **Comment & Export**:
     *   **Double-click** anywhere to add a sticky note.
     *   **Select text** to add a highlighted comment.
