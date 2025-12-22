@@ -36,8 +36,8 @@ Unlike diff viewers, it is not focused on finding and highlighting differences. 
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/pdf-twice.git
-    cd pdf-twice/app
+    git clone https://github.com/PlusKitty/PDFTwice.git
+    cd PDFTwice/app
     ```
 2.  Install dependencies:
     ```bash

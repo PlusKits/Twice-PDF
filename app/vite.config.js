@@ -9,6 +9,7 @@ const SAFE_ROOT = path.resolve(__dirname, 'public/samples');
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/PDFTwice/',
   plugins: [
     react(),
     {
