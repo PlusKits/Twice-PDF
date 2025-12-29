@@ -1,6 +1,6 @@
 # <img src="app/public/favicon.ico" width="40" height="40" style="vertical-align: text-bottom;"> PDFTwice
 
-**Compare PDFs the smart way.** A minimalist, privacy-first tool for side-by-side PDF review—built for QC, translation checks, and version comparison. Try it [here](https://pluskitty.github.io/PDFTwice)!
+A minimalist productivity tool to view PDFs side by side. Built for QC, translation checks, and version comparison. Try it [here](https://pluskitty.github.io/PDFTwice)!
 
 ![PDFTwice Screenshot](app/public/screenshot/Main%20view.png)
 
@@ -11,7 +11,7 @@
 ### 🎁 Ready to Use
 | Feature | Why It Matters |
 |:--------|:---------------|
-| **No Install Required** | Open the web app and start comparing—nothing to download or configure. |
+| **No Install Required** | Open the web app and start comparing; nothing to download or configure. |
 | **100% Private** | Your PDFs never leave your browser. All processing happens locally. |
 | **Ad-Free** | Clean interface, no distractions. Focus on your documents. |
 | **Free & Open Source** | Use it forever, for free. Inspect the code anytime. |
@@ -28,7 +28,7 @@
 ### 💬 Annotations & Review
 
 - **Sticky Notes**: Double-click to add comments anywhere
-- **Text Highlighting**: Select text to highlight—with or without comments
+- **Text Highlighting**: Select text to highlight and add comments
 - **Custom Author**: Your name persists across sessions
 - **One-Click Export**: Download annotated PDFs instantly
 
@@ -142,7 +142,8 @@ Deploy as a static site on [GitHub Pages](https://pages.github.com/), [Vercel](h
 
 **Want different terms?** 
 
-If you are an open source developer, I want to help you. If you are a business, let's talk.
+If you are an open source developer, I will gladly help. Even if you don't need a license, if you are working on a PDF viewer I would love to chat!
+If you are a business, we can talk too.
 
 Contact: pluskittydev [at] gmail [dot] com
 

@@ -2,6 +2,144 @@ import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, f
 import { Upload, Lock, Unlock, MessageSquare, X, Download, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, RotateCcw, Settings, AlertTriangle, Trash2, Search, Loader2, Maximize, Maximize2, Highlighter, Send, ExternalLink, Github } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 
+/**
+ * TextLayerSelectionManager - Ported from PDF.js text_layer_builder.js
+ * Handles Chrome-compatible text selection by dynamically moving endOfContent element
+ * to prevent selection "jumping" when cursor moves into empty space.
+ * Firefox handles selection natively, so we skip the Chrome-specific manipulation.
+ */
+const TextLayerSelectionManager = (() => {
+    const textLayers = new Map(); // Map<textLayerDiv, endOfContentDiv>
+    let selectionChangeAbortController = null;
+    let prevRange = null;
+    let isFirefox = null; // Lazily detected
+
+    const reset = (endDiv, textLayerDiv) => {
+        textLayerDiv.append(endDiv);
+        endDiv.style.width = "";
+        endDiv.style.height = "";
+        textLayerDiv.classList.remove("selecting");
+    };
+
+    const enableGlobalListener = () => {
+        if (selectionChangeAbortController) return; // Already enabled
+
+        selectionChangeAbortController = new AbortController();
+        const { signal } = selectionChangeAbortController;
+
+        let isPointerDown = false;
+
+        document.addEventListener("pointerdown", () => { isPointerDown = true; }, { signal });
+        document.addEventListener("pointerup", () => {
+            isPointerDown = false;
+            textLayers.forEach(reset);
+        }, { signal });
+        window.addEventListener("blur", () => {
+            isPointerDown = false;
+            textLayers.forEach(reset);
+        }, { signal });
+        document.addEventListener("keyup", () => {
+            if (!isPointerDown) textLayers.forEach(reset);
+        }, { signal });
+
+        document.addEventListener("selectionchange", () => {
+            const selection = document.getSelection();
+            if (selection.rangeCount === 0) {
+                textLayers.forEach(reset);
+                return;
+            }
+
+            // Find active text layers
+            const activeTextLayers = new Set();
+            for (let i = 0; i < selection.rangeCount; i++) {
+                const range = selection.getRangeAt(i);
+                for (const textLayerDiv of textLayers.keys()) {
+                    if (!activeTextLayers.has(textLayerDiv) && range.intersectsNode(textLayerDiv)) {
+                        activeTextLayers.add(textLayerDiv);
+                    }
+                }
+            }
+
+            for (const [textLayerDiv, endDiv] of textLayers) {
+                if (activeTextLayers.has(textLayerDiv)) {
+                    textLayerDiv.classList.add("selecting");
+                } else {
+                    reset(endDiv, textLayerDiv);
+                }
+            }
+
+            // Firefox handles selection natively - skip Chrome-specific manipulation
+            if (isFirefox === null) {
+                // Detect Firefox using -moz-user-select CSS property (same as PDF.js)
+                const firstTextLayer = textLayers.keys().next().value;
+                if (firstTextLayer) {
+                    isFirefox = getComputedStyle(firstTextLayer).getPropertyValue("-moz-user-select") !== "";
+                }
+            }
+            if (isFirefox) return;
+
+            // Chrome-specific: Move endOfContent to follow selection anchor
+            // This prevents selection from jumping to cover all text
+            const range = selection.getRangeAt(0);
+            const modifyStart = prevRange && (
+                range.compareBoundaryPoints(Range.END_TO_END, prevRange) === 0 ||
+                range.compareBoundaryPoints(Range.START_TO_END, prevRange) === 0
+            );
+
+            let anchor = modifyStart ? range.startContainer : range.endContainer;
+            if (anchor.nodeType === Node.TEXT_NODE) {
+                anchor = anchor.parentNode;
+            }
+
+            if (!modifyStart && range.endOffset === 0) {
+                try {
+                    while (!anchor.previousSibling) {
+                        anchor = anchor.parentNode;
+                    }
+                    anchor = anchor.previousSibling;
+                    while (anchor.childNodes && anchor.childNodes.length) {
+                        anchor = anchor.lastChild;
+                    }
+                } catch (e) { /* ignore navigation errors */ }
+            }
+
+            const parentTextLayer = anchor?.parentElement?.closest(".textLayer");
+            const endDiv = textLayers.get(parentTextLayer);
+            if (endDiv && parentTextLayer) {
+                endDiv.style.width = parentTextLayer.style.width;
+                endDiv.style.height = parentTextLayer.style.height;
+                endDiv.style.userSelect = "text";
+                try {
+                    anchor.parentElement?.insertBefore(endDiv, modifyStart ? anchor : anchor.nextSibling);
+                } catch (e) { /* ignore DOM errors */ }
+            }
+
+            prevRange = range.cloneRange();
+        }, { signal });
+    };
+
+    return {
+        register(textLayerDiv, endOfContentDiv) {
+            textLayers.set(textLayerDiv, endOfContentDiv);
+
+            textLayerDiv.addEventListener("mousedown", () => {
+                textLayerDiv.classList.add("selecting");
+            });
+
+            enableGlobalListener();
+        },
+
+        unregister(textLayerDiv) {
+            textLayers.delete(textLayerDiv);
+            if (textLayers.size === 0 && selectionChangeAbortController) {
+                selectionChangeAbortController.abort();
+                selectionChangeAbortController = null;
+                prevRange = null;
+                isFirefox = null; // Reset for next registration cycle
+            }
+        }
+    };
+})();
 const PDFViewer = forwardRef(({
     pdf,
     side,
@@ -273,6 +411,11 @@ const PDFViewer = forwardRef(({
                     if (tTask.promise) await tTask.promise;
                 }
 
+                // Add endOfContent element to prevent selection flicker (PDF.js approach)
+                const endOfContent = document.createElement('br');
+                endOfContent.className = 'endOfContent';
+                newTextLayer.appendChild(endOfContent);
+
                 if (cacheRef) cacheRef.current = { page: pageNum, scale: currentScale, content: [newCanvas, newTextLayer] };
                 return true;
             }
@@ -313,6 +456,14 @@ const PDFViewer = forwardRef(({
                 const tTask = pdfjsLib.renderTextLayer({ textContent, container: newTextLayer, viewport, textDivs: [] });
                 if (tTask.promise) await tTask.promise;
             }
+
+            // Add endOfContent element to prevent selection flicker (PDF.js approach)
+            const endOfContent = document.createElement('div');
+            endOfContent.className = 'endOfContent';
+            newTextLayer.appendChild(endOfContent);
+
+            // Register with selection manager for Chrome-compatible selection handling
+            TextLayerSelectionManager.register(newTextLayer, endOfContent);
 
             // Atomic swap
             await new Promise(resolve => {
@@ -1958,17 +2109,26 @@ const PDFViewer = forwardRef(({
                                                     />
                                                 </div>
 
-                                                <div className="px-1.5 py-2 border-t border-gray-100 mt-1">
-                                                    <div className="text-[9px] text-gray-400 font-normal leading-tight">
-                                                        <span>© 2025 PlusKitty. Open source under AGPL3.0. </span>
+                                                <div className="px-1.5 py-2 mt-1">
+                                                    <div className="text-[9px] text-gray-400 font-normal">
                                                         <a
                                                             href="https://github.com/PlusKitty/PDFTwice"
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="hover:text-gray-600 transition-colors inline-flex items-center gap-1.5"
+                                                            className="hover:text-gray-600 transition-colors inline-flex items-center gap-1"
                                                             title="View Source on GitHub"
                                                         >
+                                                            © 2025 PlusKitty
                                                             <Github className="w-3 h-3" />
+                                                        </a>
+                                                        {' '}based on{' '}
+                                                        <a
+                                                            href="https://mozilla.github.io/pdf.js/"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="hover:underline hover:text-gray-600 transition-colors"
+                                                        >
+                                                            PDF.js
                                                         </a>
                                                     </div>
                                                 </div>
