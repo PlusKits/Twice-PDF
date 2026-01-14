@@ -38,7 +38,7 @@ Twice PDF is available as a native Windows application powered by **Tauri**.
 - **CLI Support**: Open PDFs via command line: `Twice-PDF.exe doc1.pdf doc2.pdf`
 - **Native I/O**: Direct file access including "save to source" functionality with configurable naming patterns
 - **Fully offline**: No online capabilities necessary to view and save PDFs
-- **Minimal footprint**: Tauri uses the OS native web viewer, avoiding Electron-like embedding for a 95% smaller bundle size, 60-90% less memory usage, and automatic browser updates The Windows app is **under 15 MB**!
+- **Minimal footprint**: Tauri uses the OS native web viewer, avoiding Electron-like embedding for a 95% smaller bundle size, 60-90% less memory usage, and automatic engine updates. The Windows app is **under 15 MB**!
 
 ---
 
