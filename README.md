@@ -1,6 +1,6 @@
 # <img src="app/public/favicon.ico" width="40" height="40" style="vertical-align: text-bottom;"> Twice PDF
 
-A lightweight PDF viewer and annotator with synced side-by-side view. Built for QC, translation checks, and version comparison. Try it online [here](https://pluskits.github.io/Twice-PDF)!
+A lightweight PDF viewer and annotator with synced side-by-side view. Built for QC, translation checks, and version comparison. You can [use it on your browser](https://pluskits.github.io/Twice-PDF) or [download it](https://github.com/PlusKits/Twice-PDF/releases).
 
 ![Twice PDF Screenshot](app/public/screenshot/Main%20view.png)
 
@@ -34,11 +34,11 @@ A lightweight PDF viewer and annotator with synced side-by-side view. Built for 
 - **Export**: Download annotated PDFs with your changes
 
 ### 🖥️ Desktop App
-Twice PDF is available as a native Windows application powered by **Tauri**.
+Twice PDF is available as a [native Windows application](https://github.com/PlusKits/Twice-PDF/releases) powered by **Tauri**.
 - **CLI Support**: Open PDFs via command line: `Twice-PDF.exe doc1.pdf doc2.pdf`
 - **Native I/O**: Direct file access including "save to source" functionality with configurable naming patterns
 - **Fully offline**: No online capabilities necessary to view and save PDFs
-- **Minimal footprint**: Tauri uses the OS native web viewer, avoiding Electron-like embedding for a 95% smaller bundle size, 60-90% less memory usage, and automatic engine updates. The Windows app is **under 15 MB**!
+- **Minimal footprint**: Tauri uses the OS native web viewer, avoiding Electron-like embedding for a 95% smaller bundle size, 60-90% less memory usage, and automatic engine updates. The full Windows app is **under 12 MB**!
 
 ---
 
@@ -103,20 +103,24 @@ Remote PDFs use a fallback chain of public proxies:
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v16+)
 
-### Installation
+### Server installation
 
 ```bash
 git clone https://github.com/PlusKits/Twice-PDF.git
 cd Twice-PDF/app
 npm install
 npm run dev
+```
+Open `http://localhost:5173` in your browser.
 
-# For Desktop App
+### Desktop App
+```bash
 npm run tauri:dev   # Debug mode
 npm run tauri:build # Release build
 ```
+Or download our [GitHub release](https://github.com/PlusKits/Twice-PDF/releases).
 
-Open `http://localhost:5173` in your browser.
+
 
 ### URL Parameters
 
@@ -124,16 +128,16 @@ Open `http://localhost:5173` in your browser.
 http://localhost:5173/?a=file1.pdf&b=file2.pdf
 ```
 
-> [!NOTE]
+> NOTE:
 > The Vite local bridge only serves files from `app/public/samples` for security. The base path can be configured.
 
 ---
 
 ## 🌐 Deployment
 
-Deploy as a static site on [GitHub Pages](https://pages.github.com/), [Vercel](https://vercel.com/), or [Netlify](https://www.netlify.com/). Deploy as a Windows executable via our GitHub releases.
+Deploy as a static site on [GitHub Pages](https://pages.github.com/), [Vercel](https://vercel.com/), or [Netlify](https://www.netlify.com/). Deploy as a standalone app via our [GitHub releases](https://github.com/PlusKits/Twice-PDF/releases).
 
-> [!NOTE]
+> NOTE:
 > Local path functionality is only available through the Vite dev server and desktop app due to browser security restrictions.
 
 ---
@@ -180,3 +184,9 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 **Search and explore**
 
 ![Search view](app/public/screenshot/Search.png)
+
+**Browse annotations**
+![Annotations panel](app/public/screenshot/Annotations.png)
+
+**See and edit bookmarks**
+![Bookmarks panel](app/public/screenshot/Bookmarks.png)
